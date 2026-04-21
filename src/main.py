@@ -49,33 +49,6 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def run_index_mode(args: argparse.Namespace, cfg: RAGConfig):
-    strategy = cfg.get_chunk_strategy()
-    chunker = DocumentChunker(strategy=strategy, keep_tables=args.keep_tables)
-    artifacts_dir = cfg.get_artifacts_directory()
-
-    data_dir = pathlib.Path("data")
-    print(f"Looking for markdown files in {data_dir.resolve()}...")
-    md_files = sorted(data_dir.glob("*.md"))
-    print(f"Found {len(md_files)} markdown files.")
-    print(f"First 5 markdown files: {[str(f) for f in md_files[:5]]}")
-
-    if not md_files:
-        print("ERROR: No markdown files found in data/.", file=sys.stderr)
-        sys.exit(1)
-
-    build_index(
-        markdown_file=str(md_files[0]),
-        chunker=chunker,
-        chunk_config=cfg.chunk_config,
-        embedding_model_path=cfg.embed_model,
-        embedding_model_context_window=cfg.embedding_model_context_window,
-        artifacts_dir=artifacts_dir,
-        index_prefix=args.index_prefix,
-        catalog_db_path=cfg.catalog_db_path,
-        use_multiprocessing=args.multiproc_indexing,
-        use_headings=args.embed_with_headings,
-    )
 def use_indexed_chunks(question: str, chunks: list) -> list:
     # Logic for keyword matching from textbook index
     try:
